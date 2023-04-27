@@ -11,7 +11,7 @@
  - Наталия Лунёва - код персонажа
 
 # Вид игры
-![image](https://user-images.githubusercontent.com/131643806/233935700-909ea3a7-6847-46fa-8d43-3f1988fd6b67.png)
+<img width="311" alt="image" src="https://user-images.githubusercontent.com/131642251/234780414-c376276d-64a7-4784-9c9c-f46af0aeeee8.png">
 
 # Язык и используемая библиотека
   - Язык - Python
