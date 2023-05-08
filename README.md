@@ -12,7 +12,9 @@
 
 # Вид игры
 <img width="492" alt="image" src="https://user-images.githubusercontent.com/131642251/234784365-3ec3b516-ca3a-4276-abd9-4ae1b0f222ed.png">
+# Орешек 
+<img width="316" alt="image" src="https://user-images.githubusercontent.com/131642251/236786879-4f2ea147-1320-4937-ae96-d9780e714510.png">
 
-# Язык и используемая библиотека
+# Язык и используемая библиотека 
   - Язык - Python
   - Используемая библиотеки - Pygame, random, pathlib, typing.
