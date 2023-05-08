@@ -17,11 +17,11 @@ class Level():
     def __init__(self, data):
         self.tileL = []
         
-        dirt = pygame.image.load('dirt.png')
+        dirt = pygame.image.load('images/dirt.png')
 
-        grass = pygame.image.load('grass.png')
+        grass = pygame.image.load('images/grass.png')
 
-        half_grass = pygame.image.load('halfGrass.png')
+        half_grass = pygame.image.load('images/halfGrass.png')
 
         countRow = 0
         for row in data:
@@ -94,7 +94,7 @@ over = 1
 
 class Player():
     def __init__(self, x, y):
-        player_image = pygame.image.load('nuts.png')
+        player_image = pygame.image.load('images/nuts.png')
 
         self.img = pygame.transform.scale(player_image, (25,50))
 
@@ -168,7 +168,7 @@ class Player():
 class Spikes(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        spikes = pygame.image.load('spikes.png')
+        spikes = pygame.image.load('images/spikes.png')
         self.image = pygame.transform.scale(spikes, (tile_sz, tile_sz // 2))
         self.rect = self.image.get_rect()
         self.rect.x = x
