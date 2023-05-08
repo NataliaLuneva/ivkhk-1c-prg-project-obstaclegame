@@ -21,7 +21,6 @@ class Level():
 
         grass = pygame.image.load('grass.png')
 
-        water = pygame.image.load('water.png')
         half_grass = pygame.image.load('halfGrass.png')
 
         countRow = 0
@@ -43,13 +42,6 @@ class Level():
                     tile = (grass_img, img_rect_grass)
                     self.tileL.append(tile)
       
-                if tile == 7:
-                    water_img = pygame.transform.scale(water, (tile_sz, tile_sz))
-                    img_rect_water = water_img.get_rect()
-                    img_rect_water.x = countCol * tile_sz
-                    img_rect_water.y = countRow * tile_sz
-                    tile = (water_img, img_rect_water)
-                    self.tileL.append(tile)
                 if tile == 8:
                     half_grass_img = pygame.transform.scale(half_grass, (tile_sz, tile_sz // 1.5))
                     img_rect_half = half_grass_img.get_rect()
@@ -102,7 +94,7 @@ over = 1
 
 class Player():
     def __init__(self, x, y):
-        player_image = pygame.image.load('player2.png')
+        player_image = pygame.image.load('nuts.png')
 
         self.img = pygame.transform.scale(player_image, (25,50))
 
