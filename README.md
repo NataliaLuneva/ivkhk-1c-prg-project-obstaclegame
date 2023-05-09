@@ -21,5 +21,5 @@
   - Используемая библиотеки - Pygame, random, pathlib, typing.
   
 # Используемая литература и дополнительные данные 
- - https://proglib.io/p/kak-napisat-igru-na-python-5-igrovyh-dvizhkov-2022-11-07 - код персонажа
+ - [https://proglib.io/p/kak-napisat-igru-na-python-5-igrovyh-dvizhkov-2022-11-07](https://pythonru.com/uroki/biblioteka-pygame-chast-1-vvedenie) - код персонажа
   - https://www.youtube.com/@CodingWithRuss - код платформера, с этого канала взято всего по чуть-чуть 
