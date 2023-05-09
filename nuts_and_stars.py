@@ -1,4 +1,4 @@
-# Импорт и инициализация
+#Импорт и инициализация
 from pathlib import Path
 # Для случайного размещения монет
 from random import randint
@@ -24,14 +24,14 @@ class Player(pygame.sprite.Sprite):
         """Инициализирует спрайт игрока"""
         super(Player, self).__init__()
 
-        # Получает изображение персонажа
+        '''Получает изображение персонажа'''
         player_image = str(
             Path.cwd() /"images/nuts.png"
         )
-        # Загружает изображение, настраивает альфа канал для прозрачности
+        '''Загружает изображение, настраивает альфа канал для прозрачности'''
         self.surf = pygame.image.load(player_image).convert_alpha()
         self.surf = pygame.transform.scale(self.surf, (80, 80))
-        # Сохраняет в прямоугольнике, чтобы перемещать объект
+        '''Сохраняет в прямоугольнике, чтобы перемещать объект'''
         self.rect = self.surf.get_rect()
 
     def update(self, pos: Tuple):
@@ -47,12 +47,12 @@ class Stars(pygame.sprite.Sprite):
     def __init__(self):
         """Инициализирует спрайт монеты"""
         super(Stars, self).__init__()
-        # Получает изображение монеты
+        '''Получает изображение монеты'''
         stars_image = str(Path.cwd() /"images/stars .png")
-        # Загружает изображение, настраивает альфа канал для прозрачности
+        '''Загружает изображение, настраивает альфа канал для прозрачности'''
         self.surf = pygame.image.load(stars_image).convert_alpha()
         self.surf = pygame.transform.scale(self.surf, (80, 80))
-        # Задает стартовую позицию, сгенерированную случайным образом
+        '''Задает стартовую позицию, сгенерированную случайным образом'''
         self.rect = self.surf.get_rect(
             center=(
                 randint(10, WIDTH - 10),
@@ -89,58 +89,58 @@ player.update(pygame.mouse.get_pos())
 # Цикл событий
 running = True
 while running:
-    # Проверяет, нажал ли пользователь кнопку закрытия окна
+    '''Проверяет, нажал ли пользователь кнопку закрытия окна'''
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        # Определяет, нужно ли добавлять новую звезду
+            '''Определяет, нужно ли добавлять новую звезду'''
         elif event.type == ADDSTARS:
-            # Добавляет новую звезду
+            '''Добавляет новую звезду'''
             new_stars = Stars()
             stars_list.add(new_stars)
-            # Ускоряет игру, если на экранее менее 3 звезд
+            '''Ускоряет игру, если на экранее менее 3 звезд'''
             if len(stars_list) < 3:
                 stars_countdown -= stars_interval
-            # Ограничивает скорость
+            '''Ограничивает скорость'''
             if stars_countdown < 100:
                 stars_countdown = 100
-            # Останавливает предыдущий таймер
+            '''Останавливает предыдущий таймер'''
             pygame.time.set_timer(ADDSTARS, 0)
-            # Запускает новый таймер
+            '''Запускает новый таймер'''
             pygame.time.set_timer(ADDSTARS, stars_countdown)
-    # Обновляетпозицию персонажа
+    '''Обновляетпозицию персонажа'''
     player.update(pygame.mouse.get_pos())
-    # Проверяет, столкнулся ли игрок со звездой и удаляет, если это так
+    '''Проверяет, столкнулся ли игрок со звездой и удаляет, если это так'''
     stars_collected = pygame.sprite.spritecollide(
         sprite=player, group=stars_list, dokill=True
     )
     for stars in stars_collected:
-        # Каждая каждая звезда стоит 10 очков
+        '''Каждая каждая звезда стоит 10 очков'''
         score += 10
     # Проверяет, не слишком ли много звёзд
     if len(stars_list) >= STARS_COUNT:
-        # Если монет много, останавливает игру
+        '''Если монет много, останавливает игру'''
         running = False
 
-    # Указывает цвет фона
+    '''Указывает цвет фона'''
     screen.fill((0, 255, 255))
 
-    # Рисует следующие звёзды
+    '''Рисует следующие звёзды'''
     for stars in stars_list:
         screen.blit(stars.surf, stars.rect)
 
-    # Отрисовывает персонажа
+    '''Отрисовывает персонажа'''
     screen.blit(player.surf, player.rect)
 
-    # Выводит текущий счет
+    '''Выводит текущий счет'''
     score_font = pygame.font.SysFont("any_font", 36)
     score_block = score_font.render(f"Score: {score}", False, (0, 0, 0))
     screen.blit(score_block, (50, HEIGHT - 50))
 
-    # Отображает всё на экране
+    '''Отображает всё на экране'''
     pygame.display.flip()
 
-    # Скорость обновления - 30 кадров в секунду
+    '''Скорость обновления - 30 кадров в секунду'''
     clock.tick(30)
 
 # Печатает итоговый результат
