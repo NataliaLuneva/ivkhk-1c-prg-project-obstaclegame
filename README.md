@@ -20,6 +20,6 @@
   - Язык - Python
   - Используемая библиотеки - Pygame, random, pathlib, typing.
   
-  # Используемая литература и дополнительные данные 
-  https://proglib.io/p/kak-napisat-igru-na-python-5-igrovyh-dvizhkov-2022-11-07 - код персонажа
-  https://www.youtube.com/@CodingWithRuss - код платформера 
+# Используемая литература и дополнительные данные 
+ - https://proglib.io/p/kak-napisat-igru-na-python-5-igrovyh-dvizhkov-2022-11-07 - код персонажа
+  - https://www.youtube.com/@CodingWithRuss - код платформера, с этого канала взято всего по чуть-чуть 
