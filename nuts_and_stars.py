@@ -30,7 +30,7 @@ class Stars(pygame.sprite.Sprite):
     def __init__(self):
         super(Stars, self).__init__()
 
-        stars_image = str(Path.cwd() /"images/stars.png")
+        stars_image = str(Path.cwd() /"images/stars .png")
 
         self.surf = pygame.image.load(stars_image).convert_alpha()
         self.surf = pygame.transform.scale(self.surf, (80, 80))
