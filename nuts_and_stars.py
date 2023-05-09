@@ -20,11 +20,16 @@ STARS_COUNT = 3
 
 # Определяет спрайт для игрока
 class Player(pygame.sprite.Sprite):
+    """_Класс персонажа_
+
+    Args:
+        pygame (_sprite_): _Это элемент компьютерной графики, который показывает, что персонаж игры подвижный_
+    """
     def __init__(self):
         """Инициализирует спрайт игрока"""
         super(Player, self).__init__()
 
-        '''Получает изображение персонажа'''
+        '''Получает изображение игрока'''
         player_image = str(
             Path.cwd() /"images/nuts.png"
         )
@@ -44,10 +49,15 @@ class Player(pygame.sprite.Sprite):
 
 # Определяет спрайт для звёзд
 class Stars(pygame.sprite.Sprite):
+    """_Класс звёздочек_
+
+    Args:
+        pygame (_sptite_): _Это элемент компьютерной графики, который показывает, что звёзды подвижны__
+    """
     def __init__(self):
-        """Инициализирует спрайт монеты"""
+        """Инициализирует спрайт звезды"""
         super(Stars, self).__init__()
-        '''Получает изображение монеты'''
+        '''Получает изображение звезды'''
         stars_image = str(Path.cwd() /"images/stars .png")
         '''Загружает изображение, настраивает альфа канал для прозрачности'''
         self.surf = pygame.image.load(stars_image).convert_alpha()
