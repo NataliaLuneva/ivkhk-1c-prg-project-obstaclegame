@@ -1,5 +1,4 @@
 import pygame
-import sys
 from pygame.locals import *
 
 pygame.init()
@@ -17,11 +16,11 @@ class Level():
     def __init__(self, data):
         self.tileL = []
         
-        dirt = pygame.image.load('images/dirt.png')
+        dirt = pygame.image.load('dirt.png')
 
-        grass = pygame.image.load('images/grass.png')
+        grass = pygame.image.load('grass.png')
 
-        half_grass = pygame.image.load('images/halfGrass.png')
+        half_grass = pygame.image.load('halfGrass.png')
 
         countRow = 0
         for row in data:
@@ -65,6 +64,7 @@ class Level():
                 pygame.draw.rect(screen, (0, 240, 120), tile[1], 1)
 
 
+
 level_look = [
 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -94,7 +94,7 @@ over = 1
 
 class Player():
     def __init__(self, x, y):
-        player_image = pygame.image.load('images/nuts.png')
+        player_image = pygame.image.load('nuts.png')
 
         self.img = pygame.transform.scale(player_image, (25,50))
 
@@ -113,17 +113,17 @@ class Player():
         moveY = 0
 
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_a]:
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
             moveX -= 4
-        if keys[pygame.K_d]:
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             moveX += 4
 
-        if keys[pygame.K_w] and self.jump == False:
+        if keys[pygame.K_SPACE] and self.jump == False:
             self.vel = -13
             self.jump = True
-        if keys[pygame.K_w] == False:
+        if keys[pygame.K_SPACE] == False:
             self.jump = False
-
+        
         self.vel += 1
         if self.vel > 10:
             self.vel = 10       
@@ -139,23 +139,7 @@ class Player():
                 elif self.vel >= 0:
                     moveY = tile[1].top - self.rect.bottom
                     self.vel = 0
-                    
 
-        over = 1
-        if pygame.sprite.spritecollide(self, spikes_group, False):
-            over = 0
-            if over == 0:
-                screen.fill((0, 0, 0))
-                font = pygame.font.SysFont('arial', 40)
-                title = font.render('Game Over', True, (255, 255, 255))
-                restart_button = font.render('R - Restart', True, (255, 255, 255))
-                quit_button = font.render('Q - Quit', True, (255, 255, 255))
-                screen.blit(title, (screen_width/2 - title.get_width()/2, screen_height/2 - title.get_height()/3))
-                screen.blit(restart_button, (screen_width/2 - restart_button.get_width()/2, screen_height/1.9 + restart_button.get_height()))
-                screen.blit(quit_button, (screen_width/2 - quit_button.get_width()/2, screen_height/2 + quit_button.get_height()/2))
-                moveX = 1000
-                moveY = 1000
-            None
 
         self.rect.y += moveY
         self.rect.x += moveX
@@ -165,14 +149,28 @@ class Player():
         if hitbox[pygame.K_RIGHTBRACKET]:
             pygame.draw.rect(screen, (255,255,0), self.rect, 1)
 
+    def gameOver(self):
+        over = 1
+        if pygame.sprite.spritecollide(self, spikes_group, False):
+            over = 0
+            if over == 0:
+                lose = pygame.image.load('lose.png')
+                screen.fill((0,0,0))
+                image = pygame.transform.scale(lose, (400,400))            
+                screen.blit(image, (screen_width/3, screen_height/4))
+                self.rect.y += 0
+                self.rect.x += 0
+        
+
 class Spikes(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        spikes = pygame.image.load('images/spikes.png')
+        spikes = pygame.image.load('spikes.png')
         self.image = pygame.transform.scale(spikes, (tile_sz, tile_sz // 2))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
     
 player = Player(130,200)
 level = Level(level_look)
@@ -184,10 +182,13 @@ while run:
     level.draw()
     spikes_group.draw(screen)
     player.move()
+    player.gameOver()
+
 
     for e in pygame.event.get():
         if e.type == pygame.QUIT:
             run = False
     clock.tick(fps)
     pygame.display.update()
+
 pygame.quit()
