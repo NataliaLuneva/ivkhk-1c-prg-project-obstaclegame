@@ -18,7 +18,7 @@
 
 # Язык и используемые библиотеки
   - Язык игры - Python
-  - Используемые библиотеки - Pygame, random, pathlib, typing.
+  - Используемые библиотеки - Pygame.
 
   # Используемая литература и дополнительные данные 
  - [https://proglib.io/p/kak-napisat-igru-na-python-5-igrovyh-dvizhkov-2022-11-07](https://pythonru.com/uroki/biblioteka-pygame-chast-1-vvedenie) - код персонажа
