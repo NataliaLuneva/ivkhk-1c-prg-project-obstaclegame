@@ -16,7 +16,7 @@
 # Орешек 
 ![image](https://github.com/NataliaLuneva/ivkhk-1c-prg-project-obstaclegame/assets/131642251/a0d9cbb5-ac95-420a-a4bb-e5033bc8e094)
 
-# Язык и используемая библиотека 
+# Язык и используемые библиотеки
   - Язык игры - Python
   - Используемые библиотеки - Pygame, random, pathlib, typing.
 
