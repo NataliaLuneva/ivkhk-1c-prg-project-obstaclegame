@@ -1,6 +1,6 @@
 #Импорт и инициализация
 from pathlib import Path
-# Для случайного размещения монет
+# Для случайного размещения звёзд
 from random import randint
 # Для поиска ресурсов
 from typing import Tuple
