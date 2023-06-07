@@ -3,20 +3,18 @@ from pygame.locals import *
 
 pygame.init()
 
-screen_width = 1560
-screen_height = 780
+screen_width = 1920
+screen_height = 1080
 
 # выставляется размер и ширина экрана от [screen_width] и [screen_height]
 screen = pygame.display.set_mode((screen_width, screen_height))
-
-pygame.display.set_caption('Nut platformer game')
 
 # частота обновления, которая зависит от переменной [fps]
 clock = pygame.time.Clock()
 fps = 90
 
 # размер хитбокса блока
-tile_sz = 78
+tile_sz = 60
 
 transition = 4
 score = 0
@@ -24,68 +22,77 @@ pause = False
 appear = False
 
 class Level():
-    '''
-    data - получение данных от [level_look]
-    '''
+    countCol = 0
+    countRow = 0
+
     def __init__(self, data):  
-        # переменная в которую передаются блоки уровня     
+        # переменная в которую передаются блоки уровня    
         self.tileL = []
-        
+       
         # загрузка картинок уровня
-        dirt = pygame.image.load('images/dirt.png')
-        grass = pygame.image.load('images/grass.png')
+        dirt = pygame.image.load('images/dirt.png').convert()
+        grass = pygame.image.load('images/grass.png').convert()
         half_grass = pygame.image.load('images/halfGrass2.png')
-        
+        half_dirt = pygame.image.load('images/halfDirt.png')
+       
         # cчет по вертикали
-        countRow = 0
+        Level.countRow = 0
         for row in data:
 
             # счет по горизонтали
-            countCol = 0
+            Level.countCol = 0
             for tile in row:
 
                 # проверка если в [level_look] есть данная цифра, тогда в [self.tileL] добавляется хитбокс и картинка
                 if tile == 1:
                     dirt_img = pygame.transform.scale(dirt, (tile_sz, tile_sz))
                     img_rect = dirt_img.get_rect()
-                    img_rect.x = countCol * tile_sz
-                    img_rect.y = countRow * tile_sz
+                    img_rect.x = Level.countCol * tile_sz
+                    img_rect.y = Level.countRow * tile_sz
                     tile = (dirt_img, img_rect)
                     self.tileL.append(tile)
                 if tile == 2:
                     grass_img = pygame.transform.scale(grass, (tile_sz, tile_sz))
                     img_rect_grass = grass_img.get_rect()
-                    img_rect_grass.x = countCol * tile_sz
-                    img_rect_grass.y = countRow * tile_sz
+                    img_rect_grass.x = Level.countCol * tile_sz
+                    img_rect_grass.y = Level.countRow * tile_sz
                     tile = (grass_img, img_rect_grass)
-                    self.tileL.append(tile) 
-
-                if tile == 8:
-                    half_grass_img = pygame.transform.scale(half_grass, (tile_sz, tile_sz // 2))
-                    img_rect_half = half_grass_img.get_rect()
-                    img_rect_half.x = countCol * tile_sz
-                    img_rect_half.y = countRow * tile_sz
-                    tile = (half_grass_img, img_rect_half)
                     self.tileL.append(tile)
-
                 if tile == 3:
-                    spikes = Spikes(countCol * tile_sz, countRow * tile_sz + (tile_sz // 2))
+                    spikes = Spikes(Level.countCol * tile_sz, Level.countRow * tile_sz + (tile_sz // 2))
                     spikes_group.add(spikes)
                 if tile == 4:
-                    end = End(countCol * tile_sz, countRow * tile_sz)
+                    end = End(Level.countCol * tile_sz, Level.countRow * tile_sz)
                     end_group.add(end)
                 if tile == 5:
-                    stars = Stars(countCol * tile_sz , countRow * tile_sz)
+                    stars = Stars(Level.countCol * tile_sz , Level.countRow * tile_sz)
                     star_group.add(stars)
                 if tile == 6:
-                    ladder = Ladder(countCol * tile_sz, countRow * tile_sz)
+                    ladder = Ladder(Level.countCol * tile_sz, Level.countRow * tile_sz)
                     ladder_group.add(ladder)
-
+                if tile == 7:
+                    half_dirt_img = pygame.transform.scale(half_dirt, (tile_sz, tile_sz // 2))
+                    img_rect_half_dirt = half_dirt_img.get_rect()
+                    img_rect_half_dirt.x = Level.countCol * tile_sz
+                    img_rect_half_dirt.y = Level.countRow * tile_sz
+                    tile = (half_dirt_img, img_rect_half_dirt)
+                    self.tileL.append(tile)
+                if tile == 8:
+                    half_grass_img = pygame.transform.scale(half_grass, (tile_sz, tile_sz // 2))
+                    img_rect_half_grass = half_grass_img.get_rect()
+                    img_rect_half_grass.x = Level.countCol * tile_sz
+                    img_rect_half_grass.y = Level.countRow * tile_sz
+                    tile = (half_grass_img, img_rect_half_grass)
+                    self.tileL.append(tile)
+                if tile == 9:
+                    flip_spikes = FlippedSpikes(Level.countCol * tile_sz, Level.countRow * tile_sz)
+                    flip_spikes_group.add(flip_spikes)
+               
                 # счет переходит на следующую вертикаль, если равна 0
-                countCol += 1
+                Level.countCol += 1
 
             # счет переходит на следующую горизонталь, если равна 0
-            countRow += 1
+            Level.countRow += 1
 
     def draw(self):
         # добавляется хитбокс и картинка, если в переменной [level_look] есть соответсвующая цифра
@@ -96,54 +103,84 @@ class Level():
             hitbox = pygame.key.get_pressed()
             if hitbox[pygame.K_LEFTBRACKET]:
                 pygame.draw.rect(screen, (255,255,255), tile[1], 1)
+    
+    
+    def update_end_image(self, activity=False):
+        for end in end_group:
+            if activity:
+                end.image = pygame.transform.scale(end.active_end_image, (tile_sz, tile_sz))
+            else:
+                end.image = pygame.transform.scale(end.end_image, (tile_sz, tile_sz))
+
 
 # уровень
 # easy
 level_look = [
-[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 6, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 6, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1],
-[1, 0, 0, 0, 0, 0, 0, 5, 0, 0, 2, 2, 0, 0, 0, 0, 6, 2, 1, 1],
-[1, 0, 0, 4, 0, 0, 2, 2, 2, 2, 1, 1, 2, 8, 8, 0, 6, 1, 1, 1],
-[1, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 1, 5, 0, 0, 0, 2, 1, 1, 1],
-[1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1],
+[1, 1, 1, 1, 7, 7, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 7, 1, 1, 1, 1, 1],
+[1, 1, 7, 0, 0, 0, 0, 7, 1, 1, 1, 1, 1, 1, 7, 0, 0, 7, 1, 1, 1, 1, 7, 7, 0, 0, 0, 9, 7, 1, 1, 1],
+[1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 7, 9, 0, 0, 0, 0, 9, 1, 1, 7, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+[1, 0, 0, 0, 5, 2, 2, 0, 0, 9, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 0, 0, 0, 0, 0, 0, 0, 0, 9, 1, 1],
+[1, 0, 6, 2, 2, 1, 7, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+[1, 0, 6, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 1],
+[1, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 2, 2, 1, 1, 1, 1, 2, 2, 0, 0, 5, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 1],
+[1, 1, 1, 2, 2, 2, 3, 0, 0, 2, 1, 1, 7, 0, 9, 7, 1, 1, 2, 2, 2, 2, 1, 1, 1, 2, 2, 6, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 7, 0, 0, 0, 0, 0, 0, 7, 1, 1, 1, 1, 7, 0, 0, 1, 7, 6, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 3, 1],
+[1, 1, 1, 7, 7, 7, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 2, 2, 1],
+[1, 1, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1, 1, 1],
+[1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 2, 2, 1, 1, 1, 1, 1, 1, 1],
+[1, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 2, 6, 0, 0, 1, 1, 7, 0, 0, 7, 1, 1],
+[1, 0, 0, 0, 0, 0, 2, 1, 1, 1, 2, 0, 0, 0, 3, 1, 7, 0, 0, 7, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 2, 2, 1, 1, 1, 1, 1, 3, 3, 3, 2, 1, 0, 5, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 4, 0, 0, 1],
+[1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
 ]
 
 # medium
 level_look2 = [
-[1, 1, 1, 1, 1, 1, 1, 1, 1 ,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 1],
-[1, 0, 8, 5, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 1],
-[1, 0, 0, 8, 3, 3, 3, 8, 0, 0, 0, 0, 0, 0, 0, 5, 8, 0, 0, 1],
-[1, 0, 0, 0, 8, 8, 8, 0, 8, 8, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 2, 2, 0, 5, 0, 1],
-[1, 2, 2, 3, 3, 2, 2, 2, 2, 2, 3, 3, 3, 3, 1, 1, 2, 2, 2, 1]
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 1, 1, 1, 1, 1],
+[1, 1, 1, 1, 7, 7, 0, 0, 0, 7, 1, 1, 7, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 1, 1],
+[1, 1, 1, 7, 0, 0, 0, 0, 0, 0, 9, 1, 0, 0, 0, 3, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 1],
+[1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 2, 2, 3, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 7, 1, 2, 2, 2, 1, 7, 0, 6, 2, 2, 0, 4, 0, 2, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7, 7, 0, 0, 6, 7, 1, 2, 2, 2, 1, 1],
+[1, 0, 5, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 7, 1, 1, 1, 1],
+[1, 2, 2, 2, 1, 1, 2, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 9, 7, 1],
+[1, 1, 1, 1, 1, 1, 7, 0, 0, 2, 1, 1, 0, 0, 2, 2, 0, 0, 2, 2, 0, 0, 0, 5, 6, 0, 0, 0, 0, 3, 0, 1],
+[1, 1, 1, 1, 7, 7, 0, 0, 0, 7, 1, 7, 0, 0, 7, 1, 0, 0, 1, 7, 0, 0, 2, 2, 2, 2, 0, 0, 0, 2, 2, 1],
+[1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 7, 0, 6, 2, 1, 1, 1],
+[1, 1, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 1, 1, 1],
+[1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 3, 0, 0, 0, 0, 6, 3, 1, 1, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 0, 0, 7, 1, 1, 1, 1, 1, 1, 1, 7, 0, 0, 0, 7, 1, 1, 1, 1],
+[1, 0, 0, 0, 0, 2, 2, 2, 0, 0, 1, 1, 7, 0, 0, 0, 0, 7, 1, 1, 1, 1, 7, 0, 0, 0, 0, 0, 7, 1, 1, 1],
+[1, 0, 0, 2, 2, 1, 1, 1, 3, 3, 1, 1, 3, 3, 3, 3, 3, 3, 1, 1, 1, 7, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+[1, 2, 2, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1],
 ]
 
 # hard
 level_look3 = [
-[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 4, 0, 0, 0, 0, 0, 0, 1],
-[1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+[1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 5, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8, 8, 8, 0, 8, 8, 8, 0, 8, 8, 8, 8, 0, 8, 8, 8, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 8, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 6, 1],
+[1, 0, 0, 3, 8, 3, 3, 3, 0, 3, 5, 0, 0, 3, 0, 0, 4, 0, 3, 2, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 6 ,1],
+[1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
 ]
 
-spikes_group = pygame.sprite.Group()
-star_group = pygame.sprite.Group()
-end_group = pygame.sprite.Group()
-ladder_group = pygame.sprite.Group()
+levels = [level_look, level_look2, level_look3]
 
 class Player():
     def __init__(self, x, y):
@@ -155,7 +192,7 @@ class Player():
         moveY = 0
 
         # переменная, которая отвечает за скорость смены картинок для анимации
-        walk_animation = 7
+        walk_animation = 6
 
         # переменная для определения нажатия кнопки
         keys = pygame.key.get_pressed()
@@ -168,7 +205,7 @@ class Player():
                 moveX -= 6
                 self.image_direction = -1
                 self.image_counter += 1
-                
+               
                 # если нажата [D] или [>] то игрок двигается вправо
             if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
                 moveX += 6
@@ -201,7 +238,7 @@ class Player():
                 # если индекс картинки больше количества картинок, то индекс сбрасывается до 0
                 if self.image_index >= len(self.image_right_direction):
                     self.image_index = 0
-                
+               
                 # если игрок идет вправо, то загружаются картинки, которые направлены в правую сторону
                 if self.image_direction == 1:
                     self.image = self.image_right_direction[self.image_index]
@@ -223,7 +260,7 @@ class Player():
                 if tile[1].colliderect(self.rect.x + moveX, self.rect.y, self.width, self.height):
                     moveX = 0
                     self.image_counter = 0
-                        
+                       
                 # проверка если игрок задевает верхнюю или нижнюю часть блока
                 if tile[1].colliderect(self.rect.x, self.rect.y + moveY, self.width, self.height):
 
@@ -246,6 +283,9 @@ class Player():
             if pygame.sprite.spritecollide(self, spikes_group, False):
                 transition = -1
 
+            if pygame.sprite.spritecollide(self, flip_spikes_group, False):
+                transition = -1
+
             # если игрок соприкосается с лестницой, то ожидается зажатая [SPACE]
             # если [SPACE] зажата, то игрок поднимается по лестнице
             if pygame.sprite.spritecollide(self, ladder_group, False):
@@ -259,9 +299,9 @@ class Player():
         hitbox = pygame.key.get_pressed()
         if hitbox[pygame.K_RIGHTBRACKET]:
             pygame.draw.rect(screen, (0,0,250), self.rect, 1)
-    
+   
         return transition
-    
+   
     def restart(self, x, y):
         self.image_right_direction = []
         self.image_left_direction = []
@@ -288,17 +328,18 @@ class Player():
 # картинки для кнопок
 play_image = pygame.image.load('images/play.png')
 quit_image = pygame.image.load('images/quit.png')
-restart = pygame.image.load('images/restart.png')
-difficulty_image = pygame.image.load('images/difficulty.jpg')
+restart_image = pygame.image.load('images/restart.png')
+restart_2_image = pygame.image.load('images/restart2.png')
+difficulty_image = pygame.image.load('images/select difficulty.png')
 win_image = pygame.image.load('images/levelCompleted.png')
-easy_btn_image = pygame.image.load('images/easy.jpg')
-medium_btn_image = pygame.image.load('images/medium.jpg')
-hard_btn_image = pygame.image.load('images/hard.jpg')
+easy_btn_image = pygame.image.load('images/easy.png')
+medium_btn_image = pygame.image.load('images/medium.png')
+hard_btn_image = pygame.image.load('images/hard.png')
 level_select_image = pygame.image.load('images/select lvl.png')
 resume_button = pygame.image.load('images/resume.png')
 game_over_image = pygame.image.load('images/gameOver.png')
 go_back_image = pygame.image.load('images/back.png')
-star_appear = pygame.image.load('images/star.png')
+settings_image = pygame.image.load('images/settings2.png')
 
 # класс для кнопок
 class Button():
@@ -327,25 +368,31 @@ class Button():
             # проверка для того, чтобы кнопку нельзя было зажать, а только лишь нажать один раз
             if pygame.mouse.get_pressed()[0] == 0:
                 self.click = False
-        
+       
         # появление кнопки и ее хитбокса на экране
         screen.blit(self.button_image, self.rect)
 
         # возвращаем переменную
         return action
-    
+   
 # картинки в игре
 class ScreenImage():
     def __init__(self, image, x, y, w, h):
         self.image = image
         self.screen_image = pygame.transform.scale(self.image, (w, h))
-        self.rect = self.image.get_rect()
+        self.rect = self.screen_image.get_rect()
         self.rect.x = x
         self.rect.y = y
-    
+   
     def draw(self):
         screen.blit(self.screen_image, self.rect)
-    
+
+spikes_group = pygame.sprite.Group()
+flip_spikes_group = pygame.sprite.Group()
+star_group = pygame.sprite.Group()
+end_group = pygame.sprite.Group()
+ladder_group = pygame.sprite.Group()
+   
 # классы для объектов, которые не имеют хитбокса
 class Spikes(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -356,10 +403,20 @@ class Spikes(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+class FlippedSpikes(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        spikes = pygame.image.load('images/spikes2.png')
+        self.flip_image = pygame.transform.flip(spikes, False, True)
+        self.image = pygame.transform.scale(self.flip_image, (tile_sz, tile_sz // 2))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
 class Stars(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        star = pygame.image.load('images/star.png')
+        star = pygame.image.load('images/stars.png')
         self.image = pygame.transform.scale(star, (tile_sz, tile_sz))
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -368,8 +425,9 @@ class Stars(pygame.sprite.Sprite):
 class End(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        end = pygame.image.load('images/end.png')
-        self.image = pygame.transform.scale(end, (tile_sz, tile_sz))
+        self.end_image = pygame.image.load('images/end.png')
+        self.active_end_image = pygame.image.load('images/activeEnd.png')
+        self.image = pygame.transform.scale(self.end_image, (tile_sz, tile_sz))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -383,174 +441,226 @@ class Ladder(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-# появление звезды под кнопкой уровня
-class StarAppear():
-    def __init__(self, image, pos, width, height):
-        self.image = image
-        self.image_rect = pygame.transform.scale(self.image, (width, height))
-        self.rect = self.image_rect.get_rect()
-        self.rect.x = pos[0]
-        self.rect.y = pos[1]
+font = pygame.font.Font(None, 35)
+
+class TextAppear():
+    def __init__(self, text, pos, w, h):
+        
+        self.rect = pygame.Rect(pos, (w, h))
+        self.rect_color = ((0,0,0))
+
+        self.text = font.render(text, True, (35, 205, 5))
+        self.text_rect = self.text.get_rect(center = self.rect.center)
 
     def update(self):
-        screen.blit(self.image_rect, self.rect)
+        pygame.draw.rect(screen, self.rect_color, self.rect)
+        screen.blit(self.text, self.text_rect)
 
-position = [(screen_width // 2 + 300, screen_height // 2 - 150),
-            (screen_width // 2 + 375, screen_height // 2 - 150),
-            (screen_width // 2 + 450, screen_height // 2 - 150)]
-easy_star_1 = StarAppear(star_appear, position[0], 50, 50)
-easy_star_2 = StarAppear(star_appear, position[1], 50, 50)
-easy_star_3 = StarAppear(star_appear, position[2], 50, 50)
-
+text_position = [(screen_width // 2 + 400, screen_height // 2 - 138),
+                 (screen_width // 2 + 400, screen_height // 2 + 62),
+                 (screen_width // 2 + 400, screen_height // 2 + 265)]
+text_completed = 'COMPLETED'
+texts = []
 
 # передаем аргументы в классы игрока и уровня    
-player = Player(130,600)
+player = Player(130,970)
 
 # передаем аргументы в классы кнопок
 play_button = Button(play_image, screen_width // 2 - 160, screen_height // 2 - 75, 300,100)
 quit_button = Button(quit_image, screen_width // 2 - 160, screen_height // 2 + 75, 300,100)
-restart_button = Button(restart, screen_width // 2 - 160, screen_height // 2 - 62, 300,100)
+restart_button = Button(restart_image, screen_width // 2 - 160, screen_height // 2 - 62, 300,100)
+restart_2_button = Button(restart_2_image, screen_width // 2 - 160, screen_height // 2 - 62, 300,100)
 
 easy_button = Button(easy_btn_image, screen_width // 2 + 250, screen_height // 2 - 250, 300,100)
 medium_button = Button(medium_btn_image, screen_width // 2 + 250, screen_height // 2 - 50, 300,100)
 hard_button = Button(hard_btn_image, screen_width // 2 + 250, screen_height // 2 + 150, 300,100)
 
-level_select = Button(level_select_image, screen_width // 3 + 80, screen_height // 2 - 75, 350,100)
+level_select = Button(level_select_image, screen_width // 2 - 188, screen_height // 2 - 85, 350,120)
 resume_button = Button(resume_button, screen_width // 2 - 160, screen_height // 2 - 200, 300,100)
 go_back_button = Button(go_back_image, 40, 40, 200,50)
+settings_button = Button(settings_image, screen_width // 2 - 45, screen_height // 2 + 225, 75, 75)
 
 # передаем аргументы в классы меню
-difficulty_draw = ScreenImage(difficulty_image, screen_width // 3 + 50, screen_height // 2 - 100, 400,200)
-win_draw = ScreenImage(win_image, screen_width // 3 - 25, screen_height // 2 - 350, 550,300)
-game_over_draw = ScreenImage(game_over_image, screen_width // 3 - 55, screen_height // 2 - 350, 600,300)
+difficulty_draw = ScreenImage(difficulty_image, screen_width // 3, screen_height // 2 - 100, 500,240)
+win_draw = ScreenImage(win_image, screen_width // 3 + 35, screen_height // 2 - 350, 550,300)
+game_over_draw = ScreenImage(game_over_image, screen_width // 3 + 20, screen_height // 2 - 350, 600,300)
 
-# передаем аргументы в тексты меню
+currrent_level = -1
+
+level_completed = [False, False, False]
+game_complete = False
+
 run = True
 while run:
-    
+   
     keys = pygame.key.get_pressed()
-    # при проигрыше появляется кнопка [Restart] для того, чтобы начать игру заного
+    
+    # Экран после проигрыша
     if transition == -1:
         screen.fill((0,0,0))
         game_over_draw.draw()
-        if restart_button.update():     
-            player.restart(130,600)
-            transition = 0
 
-    # если переменная [transition] равна 0, то возврашаются все функции, отвечающие за игрока и уровень
+        levels.clear()
+        level = Level(levels)
+        spikes_group.empty()
+        flip_spikes_group.empty()
+        star_group.empty()
+        end_group.empty()
+        ladder_group.empty()
+        score = 0
+
+        if restart_2_button.update():    
+            player.restart(130,970)
+            transition = 0
+            levels = [level_look, level_look2, level_look3]
+            level = Level(levels[currrent_level])
+
+    # Активная игра
     if transition == 0:
-        
+       
         screen.fill((90,143,220))
-        # ((185,209,225))
 
         level.draw() # уровень
         spikes_group.draw(screen) # иголки
+        flip_spikes_group.draw(screen) # перевернутые иголки
         ladder_group.draw(screen) # лестница
         star_group.draw(screen) # звезды
+        end_group.draw(screen) # дверь
 
-        # начисление очков при подборе звезд
         if pygame.sprite.spritecollide(player, star_group, True):
             score += 1
-            if score == 3:
-               appear = True
 
-        if appear:
-            # дверь в конце уровня
-            end_group.draw(screen)
 
-        # возвращается [transition] в зависимости от того, проиграл игрок или нет, если да то [transition] равна -1
+        if score == 3:
+            level.update_end_image(activity = True)
+            if pygame.sprite.spritecollide(player, end_group, False) and score == 3:
+                if keys[pygame.K_e] or keys[pygame.K_RSHIFT]:
+                    transition = 3
+                    level_completed[currrent_level] = True
+
         transition = player.move(transition)
-
-        # если игрок дошел до конца уровня, то при нахождении у двери и при нажатии на клавишу [E] игрок победит
-        if pygame.sprite.spritecollide(player, end_group, False):
-            if keys[pygame.K_RSHIFT] or keys[pygame.K_e]:
-                transition = 3
-                if transition == 3:
-                    screen.fill((0,0,0))
-                    win_draw.draw()
-                    spikes_group.empty()
-                    star_group.empty()
-                    end_group.empty()
-                    ladder_group.empty()
-                    
-                    appear = False
 
         if keys[pygame.K_ESCAPE]:
             transition = 1
 
+    # Пауза
     if transition == 1:
         screen.fill((0,0,0))
         if resume_button.update():
             transition = 0
+
         if quit_button.update():
             transition = 2
+            levels.clear()
+            level = Level(levels)
             spikes_group.empty()
+            flip_spikes_group.empty()
             star_group.empty()
             end_group.empty()
             ladder_group.empty()
             score = 0
-            appear = False
-        if restart_button.update():     
-            player.restart(130,600)
+            levels = [level_look, level_look2, level_look3]
+
+        if restart_button.update():    
+            player.restart(130,970)
             transition = 0
+            level = Level(levels[currrent_level])
+            score = 0
 
-
-    # если переменная [transition] равна 2, то игрок находится в меню уровней.
-    # при выборе уровня, переменная [transition] равна 0
+    # Выбор уровней
     if transition == 2:
         screen.fill((0,0,0))
-
-        if score == 1:
-            easy_star_1.update()
-        if score == 2:
-            easy_star_1.update()
-            easy_star_2.update()
-        if score == 3:
-            easy_star_1.update()
-            easy_star_2.update()
-            easy_star_3.update()
-
         difficulty_draw.draw()
-
-        # уровень легкой сложности
+        # Легкий
         if easy_button.update():
-            player.restart(130, 600)
+            player.restart(130, 970)
             transition = 0
-            level = Level(level_look)
+            currrent_level = 0
+            level = Level(levels[0])
 
-        # уровень средней сложности
+        # Средний
         if medium_button.update():
-            player.restart(130, 600)
+            player.restart(130, 970)
             transition = 0
-            level = Level(level_look2)
+            currrent_level = 1
+            level = Level(levels[1])
 
-        # уровень сложной сложности
+        # Сложный
         if hard_button.update():
-            player.restart(130, 600)
+            player.restart(130, 970)
             transition = 0
-            level = Level(level_look3)
+            currrent_level = 2
+            level = Level(levels[2])
+
+        # проверка, какой уровень был пройден
+        # если этот  уровень пройден, то под его кнопкой появляется надпись [COMPLETED]
+        if level_completed[currrent_level] == True:
+                completed = TextAppear(text_completed, text_position[currrent_level], 5, 5)
+                texts.append(completed)
+
+        for text in texts:
+            text.update()
+
+        # проверка, если все 3 уровня были пройдены
+        if level_completed == [True, True, True]:
+            game_complete = True
 
         if go_back_button.update():
             transition = 4
         if keys[pygame.K_ESCAPE]:
             transition = 4
-        
-    # если уровень пройден, то появляется кнопка [Select Level]
-    # при нажатии на кнопку [Select Level], осуществляется переход в меню уровней
-    # если переменная [transition] равна 3, то игрок находится в меню, пока не нажмет на кнопку 
+
+    # Уровень пройден
     if transition == 3:
+        screen.fill((0,0,0))
+        win_draw.draw()
         if level_select.update():
             transition = 2
-     
+
+            levels.clear()
+            level = Level(levels)
+            spikes_group.empty()
+            flip_spikes_group.empty()
+            star_group.empty()
+            end_group.empty()
+            ladder_group.empty()
+            score = 0
+
+            levels = [level_look, level_look2, level_look3]
+
+        if quit_button.update():
+            transition = 2
+
+            levels.clear()
+            level = Level(levels)
+            spikes_group.empty()
+            flip_spikes_group.empty()
+            star_group.empty()
+            end_group.empty()
+            ladder_group.empty()
+            score = 0
+
+            levels = [level_look, level_look2, level_look3]
+    
+    # Главное меню
     if transition == 4:
         screen.fill((0,0,0))
-        # если нажата кнопка для игры, то переменная [transition] равна 2
         if play_button.update():
             transition = 2
         if quit_button.update():
             pygame.quit()
+        if settings_button.update():
+            transition = 5
 
-    # если игрок нажимает на выход с помощью [X] то окно закрывается
+    # Настройки
+    if transition == 5:
+        screen.fill((0,0,0))
+        if go_back_button.update():
+            transition = 4
+
+        if keys[pygame.K_ESCAPE]:
+            transition = 4
+        
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
