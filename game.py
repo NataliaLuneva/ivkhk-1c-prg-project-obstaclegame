@@ -339,7 +339,8 @@ level_select_image = pygame.image.load('images/select lvl.png')
 resume_button = pygame.image.load('images/resume.png')
 game_over_image = pygame.image.load('images/gameOver.png')
 go_back_image = pygame.image.load('images/back.png')
-settings_image = pygame.image.load('images/settings2.png')
+settings_image = pygame.image.load("images/settings2.png")
+settings_keys_image = pygame.image.load("images/setting's.png")
 
 # класс для кнопок
 class Button():
@@ -484,11 +485,11 @@ settings_button = Button(settings_image, screen_width // 2 - 45, screen_height /
 difficulty_draw = ScreenImage(difficulty_image, screen_width // 3, screen_height // 2 - 100, 500,240)
 win_draw = ScreenImage(win_image, screen_width // 3 + 35, screen_height // 2 - 350, 550,300)
 game_over_draw = ScreenImage(game_over_image, screen_width // 3 + 20, screen_height // 2 - 350, 600,300)
+settings_draw = ScreenImage(settings_keys_image, 500, 300, 800, 400)
 
 currrent_level = -1
 
 level_completed = [False, False, False]
-game_complete = False
 
 run = True
 while run:
@@ -601,10 +602,6 @@ while run:
         for text in texts:
             text.update()
 
-        # проверка, если все 3 уровня были пройдены
-        if level_completed == [True, True, True]:
-            game_complete = True
-
         if go_back_button.update():
             transition = 4
         if keys[pygame.K_ESCAPE]:
@@ -655,6 +652,7 @@ while run:
     # Настройки
     if transition == 5:
         screen.fill((0,0,0))
+        settings_draw.draw()
         if go_back_button.update():
             transition = 4
 
