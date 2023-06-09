@@ -21,12 +21,25 @@ score = 0
 pause = False
 appear = False
 
-class Level():
+class Level:
+    """
+    Класс, представляющий игровой уровень.
+
+    Аrgs:
+        countCol (int): Количество столбцов в уровне.
+        countRow (int): Количество строк в уровне.
+    """
+
     countCol = 0
     countRow = 0
 
-    def __init__(self, data):  
-        # переменная в которую передаются блоки уровня    
+    def __init__(self, data):
+        """
+        Инициализация объекта класса Level.
+
+        Аrgs:
+            data (list): Список блоков уровня.
+        """
         self.tileL = []
        
         # загрузка картинок уровня
